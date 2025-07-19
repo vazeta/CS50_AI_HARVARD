@@ -91,9 +91,31 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-
     # TODO
-    raise NotImplementedError
+    explored = []
+    frontier = QueueFrontier()
+    info_source_movies = people[source]["movies"]
+    for movie in info_source_movies:
+        new_node = Node(source,None,movie)
+        frontier.add(new_node)
+
+    while True:
+        if frontier.empty() : return None
+        current_node = frontier.remove()
+        if(current_node.state == target):# encounter goal state
+            result =[]
+            while(current_node.parent != None):
+                result.append((current_node.action,current_node.state))
+                current_node = current_node.parent
+            result.reverse()
+            return result
+        else: # didnt encounter , explore
+            if(current_node.state not in explored):
+                nei = neighbors_for_person(current_node.state)
+                for k,v in nei:
+                    new_node = Node(v,current_node,k)
+                    frontier.add(new_node)
+            explored.append(current_node.state)
 
 
 def person_id_for_name(name):
