@@ -106,6 +106,21 @@ def winner(board):
                     count_x += 1
                 elif(board[i][j] == "O"):
                     count_o += 1
+
+    if(count_x == 3):
+        return "X"
+    elif(count_o == 3):
+        return "O"
+    
+    count_o = 0
+    count_x = 0
+    for i in range(0,len(board)):
+        for j in range(0, len(board[0])):
+            if (i + j == 2) :    
+                if(board[i][j] == "X"):
+                    count_x += 1
+                elif(board[i][j] == "O"):
+                    count_o += 1
     
     if(count_x == 3):
         return "X"
