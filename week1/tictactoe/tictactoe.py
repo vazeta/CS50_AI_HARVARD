@@ -9,6 +9,7 @@ X = "X"
 O = "O"
 EMPTY = None
 
+
 class InvalidActionError(Exception):
     """Exception class"""
     pass
@@ -31,14 +32,14 @@ def player(board):
     count_x = 0
     for l in board:
         for value in l:
-            if(value == "X"):
-                count_x+=1
-            elif(value == "O"):
-                count_o+=1
+            if (value == "X"):
+                count_x += 1
+            elif (value == "O"):
+                count_o += 1
     
-    if(count_x > count_o):
+    if (count_x > count_o):
         return "O"
-    elif(count_x == count_o):
+    elif (count_x == count_o):
         return "X"
 
 
@@ -47,10 +48,10 @@ def actions(board):
     Returns set of all possible actions (i, j) available on the board.
     """
     possible_actions = set()
-    for i in range(0,len(board)):
-        for j in range(0,len(board[i])):
-            if(board[i][j] == None):
-                possible_actions.add((i,j))
+    for i in range(0, len(board)):
+        for j in range(0, len(board[i])):
+            if (board[i][j] == None):
+                possible_actions.add((i, j))
     
     return possible_actions
 
@@ -82,49 +83,49 @@ def winner(board):
             return "O"
     
     # Vertically
-    for j in range(0,len(board[0])):
+    for j in range(0, len(board[0])):
         count_o = 0
         count_x = 0
-        for i in range(0,len(board)):
-            if(board[i][j] == "X"):
+        for i in range(0, len(board)):
+            if (board[i][j] == "X"):
                 count_x += 1
-            elif(board[i][j] == "O"):
+            elif (board[i][j] == "O"):
                 count_o += 1
 
-        if(count_x == 3):
+        if (count_x == 3):
             return "X"
-        elif(count_o == 3):
+        elif (count_o == 3):
             return "O"
     
     # Diagonally
     count_o = 0
     count_x = 0
-    for i in range(0,len(board)):
-        for j in range(0,len(board[0])):
-            if(i == j):
-                if(board[i][j] == "X"):
+    for i in range(0, len(board)):
+        for j in range(0, len(board[0])):
+            if (i == j):
+                if (board[i][j] == "X"):
                     count_x += 1
-                elif(board[i][j] == "O"):
+                elif (board[i][j] == "O"):
                     count_o += 1
 
-    if(count_x == 3):
+    if (count_x == 3):
         return "X"
-    elif(count_o == 3):
+    elif (count_o == 3):
         return "O"
     
     count_o = 0
     count_x = 0
-    for i in range(0,len(board)):
+    for i in range(0, len(board)):
         for j in range(0, len(board[0])):
-            if (i + j == 2) :    
-                if(board[i][j] == "X"):
+            if (i + j == 2):    
+                if (board[i][j] == "X"):
                     count_x += 1
-                elif(board[i][j] == "O"):
+                elif (board[i][j] == "O"):
                     count_o += 1
     
-    if(count_x == 3):
+    if (count_x == 3):
         return "X"
-    elif(count_o == 3):
+    elif (count_o == 3):
         return "O"
     
     return None
@@ -145,24 +146,25 @@ def terminal(board):
     return True
 
 
-
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    if(winner(board) == "X"):
+    if (winner(board) == "X"):
         return 1
-    elif(winner(board) == "O"):
+    elif (winner(board) == "O"):
         return -1
     else:
         return 0
-    
+
+
 def other_player(player):
     if player == "X":
         return "O"
     elif player == "O":
         return "X"
-    
+
+
 def result_inverse(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
@@ -177,20 +179,61 @@ def result_inverse(board, action):
     new_board[action[0]][action[1]] = true_player
 
     return new_board
-    
+
+
+def select_corners(possible_actions):
+    new = set()
+    for action in possible_actions:
+        if (action[0]+action[1] == 2 or action[0] == action[1]) and (action[0] != 1 and action[1] != 1):
+            new.add(action)
+    return new
+
+
+def best_corner(board, new_possible):
+    best = ()
+    max = 0
+    for pos in new_possible:
+        line = pos[0]
+        col = pos [1]
+        score = 0
+        for i in range(0, len(board[line])):
+            if board[line][i] == "O":
+                break
+            score += 1
+        for i in range(0, len(board)):
+            if board[i][col] == "O":
+                break
+            score += 1
+        if (score > max):
+            max = score
+            best = pos
+
+    return best
+
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
+    if terminal(board):
+        return None
+    
     cur_player = player(board)
     print(cur_player)
     possible_actions = actions(board)
     for cur_action in possible_actions:
-        current_board = result(board,cur_action)
-        inverse_board = result_inverse(board,cur_action)
+        current_board = result(board, cur_action)
+        inverse_board = result_inverse(board, cur_action)
         print(f"{cur_action}->>>>{winner(current_board)}")
-        if(winner(current_board) != None or winner(inverse_board) != None):
+        if (winner(current_board) != None or winner(inverse_board) != None):
             return cur_action
-    
+        
+    if (1, 1) in possible_actions and cur_player == "O":
+        return (1, 1)
+    elif cur_player == "X":
+        new_possible = select_corners(possible_actions)
+        best_corner_place = best_corner(board, new_possible)
+        if (best_corner_place != None):
+            return best_corner_place
+
     return random.choice(list(possible_actions))
