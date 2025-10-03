@@ -19,26 +19,28 @@ S -> NP VP
 S -> S Conj S
 S -> S Conj VP
 
-NP -> N 
-    | Det N 
-    | Det AdjCon N 
-    | NP PP 
-    | N PP
+NP -> N
+NP -> Det N
+NP -> Det AdjCon N
+NP -> NP PP
+NP -> N PP
 
 AdjCon -> Adj
+AdjCon -> Adj AdjCon
 
-VP -> V 
-    | V NP 
-    | V PP 
-    | V Adv 
-    | V NP PP 
-    | V NP Adv 
-    | VP Conj VP 
-    | Adv V
+VP -> V
+VP -> V NP
+VP -> V PP
+VP -> V Adv
+VP -> V NP PP
+VP -> V NP Adv
+VP -> VP Conj VP
+VP -> Adv V
 
-PP -> P NP 
-    | P Adv
+PP -> P NP
+PP -> P Adv
 """
+
 
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -89,10 +91,9 @@ def preprocess(sentence):
     words = nltk.tokenize.word_tokenize(sentence)
     final_words = []
     for word in words:
-        for c in word:
-            if c.isalpha:
-                final_words.append(word)
-                continue
+        if any(c.isalpha() for c in word):
+            final_words.append(word)
+                
     return final_words
 
 
